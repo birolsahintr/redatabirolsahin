@@ -1,0 +1,7 @@
+{
+  "name": "Bülent Şahin ReData 2.0 - Gayrimenkul Hafızası",
+  "description": "RE/MAX kurumsal renkleriyle tasarlanmış, Türkiye mevzuatına uygun, Tapu analizi ve portföy-talep eşleştirme odaklı bulut tabanlı gayrimenkul veri yönetim sistemi.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
