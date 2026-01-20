@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   LayoutDashboard, 
@@ -15,18 +14,16 @@ import {
   Users2 as MemberIcon
 } from 'lucide-react';
 import { auth } from '../services/firebase';
-import { signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { signOut } from "firebase/auth";
 
 // Özel Tasarlanmış ReData Logosu
 export const ReDataLogo = ({ className = "w-10 h-10" }: { className?: string }) => (
   <div className={`${className} relative`}>
     <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-lg">
-      {/* Ev İskeleti / Bulut Tabanı */}
       <path 
         d="M20 45 L50 20 L80 45 L80 85 C80 88 78 90 75 90 L25 90 C22 90 20 88 20 85 Z" 
         fill="#0054A6" 
       />
-      {/* Veri Bağlantı Çizgileri */}
       <path 
         d="M35 75 L50 55 L65 75" 
         stroke="white" 
@@ -34,9 +31,7 @@ export const ReDataLogo = ({ className = "w-10 h-10" }: { className?: string }) 
         fill="none" 
         strokeLinecap="round" 
       />
-      {/* Merkezi Veri Çekirdeği (Red) */}
       <circle cx="50" cy="55" r="8" fill="#E11B22" />
-      {/* Veri Düğümleri */}
       <circle cx="35" cy="75" r="5" fill="white" />
       <circle cx="65" cy="75" r="5" fill="white" />
     </svg>
@@ -61,7 +56,6 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab, user
     { id: 'tapu-analysis', label: 'Tapu Analizi', icon: <MapIcon size={20} /> },
   ];
 
-  // Admin veya Broker ise Üye Yönetimi menüsünü göster
   const canManageMembers = userProfile?.isAdmin || userProfile?.role === 'Broker';
   if (canManageMembers) {
     menuItems.push({ id: 'member-management', label: 'Üye Yönetimi', icon: <MemberIcon size={20} /> });
@@ -81,14 +75,8 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab, user
 
   const getInitial = (name: string) => name ? name[0].toUpperCase() : 'RE';
 
-  const handleTabChange = (id: string) => {
-    setActiveTab(id);
-    setIsMobileMenuOpen(false);
-  };
-
   return (
     <div className="flex min-h-screen bg-slate-50 relative">
-      {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-[500] bg-slate-900/60 backdrop-blur-sm md:hidden" onClick={() => setIsMobileMenuOpen(false)}>
           <div className="w-4/5 h-full bg-white shadow-2xl p-6 animate-in slide-in-from-left duration-300" onClick={e => e.stopPropagation()}>
@@ -99,12 +87,11 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab, user
               </div>
               <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 text-slate-400 hover:text-slate-600"><XIcon size={24} /></button>
             </div>
-            
             <nav className="space-y-2">
               {menuItems.map((item) => (
                 <button
                   key={item.id}
-                  onClick={() => handleTabChange(item.id)}
+                  onClick={() => { setActiveTab(item.id); setIsMobileMenuOpen(false); }}
                   className={`w-full flex items-center gap-3 px-4 py-4 rounded-2xl transition-all ${
                     activeTab === item.id 
                     ? 'bg-remax-blue text-white font-bold shadow-lg shadow-blue-100' 
@@ -116,7 +103,6 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab, user
                 </button>
               ))}
             </nav>
-
             <div className="absolute bottom-8 left-6 right-6 pt-6 border-t border-slate-100">
                <button 
                   onClick={() => signOut(auth)}
@@ -137,7 +123,6 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab, user
             <p className="text-[8px] font-bold text-slate-400 uppercase tracking-[0.2em] -mt-1">Corporate Memory</p>
           </div>
         </div>
-        
         <nav className="flex-1 p-4 space-y-2 mt-4 overflow-y-auto custom-scrollbar">
           {menuItems.map((item) => (
             <button
@@ -156,7 +141,6 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab, user
             </button>
           ))}
         </nav>
-
         <div className="p-4 border-t border-slate-100">
           <div className={`p-4 rounded-2xl flex items-center gap-3 group relative overflow-hidden transition-all ${userProfile?.isAdmin ? 'bg-slate-900 text-white' : 'bg-[#0054A6] text-white'}`}>
             <div className={`absolute top-0 right-0 w-16 h-16 rounded-full -mr-8 -mt-8 opacity-20 ${userProfile?.isAdmin ? 'bg-emerald-50' : 'bg-[#E11B22]'}`}></div>
@@ -165,15 +149,9 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab, user
             </div>
             <div className="overflow-hidden z-10 flex-1">
               <p className="text-xs font-bold truncate">{userProfile?.fullName || 'Danışman'}</p>
-              <p className="text-[9px] text-blue-100 font-medium uppercase tracking-tighter">{userProfile?.isAdmin ? 'Süper Admin' : `${userProfile?.role} (${userProfile?.officeName})`}</p>
+              <p className="text-[9px] text-blue-100 font-medium uppercase tracking-tighter truncate">{userProfile?.officeName || 'ReData Office'}</p>
             </div>
-            <button 
-              onClick={() => signOut(auth)}
-              className="z-10 text-white/50 hover:text-white transition-colors"
-              title="Çıkış"
-            >
-              <LogOut size={16} />
-            </button>
+            <button onClick={() => signOut(auth)} className="z-10 text-white/50 hover:text-white transition-colors"><LogOut size={16} /></button>
           </div>
         </div>
       </aside>
@@ -181,9 +159,7 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab, user
       <main className="flex-1 flex flex-col min-w-0">
         <header className="h-16 bg-white border-b border-slate-200 px-4 md:px-8 flex items-center justify-between sticky top-0 z-10">
           <div className="flex items-center gap-3">
-            <button onClick={() => setIsMobileMenuOpen(true)} className="md:hidden p-2 text-slate-500 hover:text-remax-blue">
-              <MenuIcon size={24} />
-            </button>
+            <button onClick={() => setIsMobileMenuOpen(true)} className="md:hidden p-2 text-slate-500 hover:text-remax-blue"><MenuIcon size={24} /></button>
             <h1 className="text-sm md:text-lg font-bold text-slate-800 flex items-center gap-2">
               <div className={`w-1 h-6 rounded-full hidden md:block ${userProfile?.isAdmin ? 'bg-emerald-500' : 'bg-[#E11B22]'}`}></div>
               {getHeaderTitle(activeTab)}
@@ -196,7 +172,6 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab, user
              </div>
           </div>
         </header>
-
         <div className="p-4 md:p-8">
           {children}
         </div>
